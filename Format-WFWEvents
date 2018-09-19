@@ -1,0 +1,23 @@
+#This creates a hash table and then populates it with each application from the WFP audit events retrieved and stored in $events.
+#As IPs are added, a count is incremented for each DestAddress, which tracks how often that ocurred.
+#
+#create an empty hash table
+$destaddr_table = @{}
+#now populate it with data from each event
+ForEach ($event in $events) {
+    if ($destaddr_table.ContainsKey($Event.Application)) {
+        #if the Application is in the table...
+        if ($destaddr_table.($Event.Application).Keys -contains $Event.DestAddress) {
+            #If the DestAddress is already in the table, increment the count
+            $destaddr_table.($Event.Application).($Event.DestAddress) += 1
+            } 
+        else {
+            #If the DestAddress is not in the table, add it and set the count to 1
+            $destaddr_table[$Event.Application].Add(($Event.DestAddress), 1)
+            }
+        }
+    else {
+        #Add the Application, DestAddress, and count of 1 to the table
+        $destaddr_table.Add(($Event.Application), @{($Event.DestAddress)=1})
+        }
+    }
